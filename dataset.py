@@ -62,7 +62,7 @@ class ChessValueDataset:
             games_with_eval_as_str = [g for g in games_as_str if "%eval" in g]
             games_with_eval_pgn = "\n\n\n".join(games_with_eval_as_str)
             games = self._generate_games(games_with_eval_pgn)
-            eval_regex_pattern = r"\[%eval (.*)\]"
+            eval_regex_pattern = r"\[%eval ([-]?\d+.\d+|#[-]?\d+)\]"
         elif pgn_format == "other":
             games = self._generate_games(pgn)
 
@@ -107,4 +107,4 @@ if __name__ == "__main__":
     for file_path in files_paths:
         cvd.insert(pgn_path=file_path, pgn_format="lichess", verbose=True)
 
-    cvd.to_file("cdv.json")
+    cvd.to_file("cvd.json")
