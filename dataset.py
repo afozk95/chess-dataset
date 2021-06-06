@@ -1,9 +1,11 @@
+from __future__ import annotations
 from typing import Dict, Generator, Iterable, Literal, Optional, Union
 from io import StringIO
 from pathlib import Path
 import re
 import chess
 import chess.pgn
+import jsonpickle
 
 
 class ChessValueDataset:
@@ -66,11 +68,43 @@ class ChessValueDataset:
 
         self._insert_games(games, eval_regex_pattern, verbose)
 
+    def to_json_str(self) -> str:
+        return jsonpickle.encode(self)
+    
+    @classmethod
+    def from_json_str(cls, json_str: str) -> ChessValueDataset:
+        return jsonpickle.decode(json_str)
+
+    def to_file(self, path: Union[Path, str]) -> None:
+        with open(path, mode="w") as f:
+            f.write(self.to_json_str())
+    
+    @classmethod
+    def from_file(cls, path: Union[Path, str]) -> ChessValueDataset:
+        with open(path, mode="r") as f:
+            obj = cls.from_json_str(f.read())
+        return obj
+
+    def __add__(self, other: ChessValueDataset) -> ChessValueDataset:
+        fen_to_value = {**self.fen_to_value, **other.fen_to_value}
+        obj = ChessValueDataset()
+        obj.fen_to_value = fen_to_value
+        return obj
+
+    def __sub__(self, other: ChessValueDataset) -> ChessValueDataset:
+        fen_to_value = {k: v for k, v in self.fen_to_value.items() if k not in other.fen_to_value}
+        obj = ChessValueDataset()
+        obj.fen_to_value = fen_to_value
+        return obj
+
 
 if __name__ == "__main__":
-    path = "data/lichess_tournament_2021.05.22_may21lta_titled-arena-may-21.pgn"
     cvd = ChessValueDataset()
-    cvd.insert(pgn_path=path, pgn_format="lichess", verbose=True)
 
-    import ipdb
-    ipdb.set_trace()
+    folder_path = Path("data")
+    files_paths = [p for p in folder_path.iterdir() if p.suffix == ".pgn"]
+
+    for file_path in files_paths:
+        cvd.insert(pgn_path=file_path, pgn_format="lichess", verbose=True)
+
+    cvd.to_file("cdv.json")
