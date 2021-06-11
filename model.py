@@ -8,7 +8,7 @@ from torch import optim
 
 class MyDataset(Dataset):
     def __init__(self):
-        dat = np.load("dataset.npz")
+        dat = np.load("data/other/dataset.npz")
         self.X = dat["X"] 
         self.y = torch.tensor([self._parse_y(v)+3 for v in dat["y"].tolist()])
 
@@ -111,4 +111,4 @@ if __name__ == "__main__":
             print(f"loss in batch: {batch_loss/num_examples_batch}")
             print(f"accuracy in batch: {batch_correct/num_examples_batch}")
 
-        torch.save(model.state_dict(), f"nets/value_{epoch}.pth")
+        torch.save(model.state_dict(), f"data/nets/value_{epoch}.pth")

@@ -45,7 +45,7 @@ class ChessPositionSerializer:
         enpassant = np.zeros(shape=(1, 8 * 8), dtype=self.dtype)
         if board.ep_square:
             sq_index = board.ep_square
-            enpassant[sq_index, 0] = 1
+            enpassant[0, sq_index] = 1
 
         return enpassant.reshape((1, 8, 8))
 
